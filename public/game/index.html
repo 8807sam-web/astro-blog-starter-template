@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#082b3c">
+  <meta name="description" content="春酒航海主題手機單機遊戲，掌舵避開暗礁，留下你的航海紀錄。">
+  <title>春酒遠航｜避開暗礁</title>
+  <style>
+    :root{color-scheme:dark;--navy:#082b3c;--deep:#061e2c;--cream:#fff4d9;--gold:#f8c76b;--mint:#9ce5d5;--coral:#ff806b}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--navy);font-family:ui-rounded,"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--cream);touch-action:none}
+    button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulation}
+    .app{position:relative;width:100%;height:100dvh;min-height:520px;overflow:hidden;background:linear-gradient(180deg,#0b3447 0%,#0a5365 52%,#0b7180 100%);isolation:isolate}
+    canvas#sea{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .grain{position:absolute;inset:0;pointer-events:none;opacity:.14;background-image:radial-gradient(#fff 0.55px,transparent .65px);background-size:7px 7px;mask-image:linear-gradient(transparent,#000 40%,transparent)}
+    .topline{position:absolute;top:max(18px,env(safe-area-inset-top));left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;z-index:2}
+    .brand{font-size:11px;letter-spacing:.2em;font-weight:800;color:#bfeae0}.sound{width:40px;height:40px;border:1px solid #ffffff3d;border-radius:50%;background:#082b3c55;font-size:17px}
+    .hud{position:absolute;top:78px;left:20px;right:20px;display:flex;justify-content:space-between;z-index:2;opacity:0;transform:translateY(-6px);transition:.25s;pointer-events:none}
+    .playing .hud{opacity:1;transform:none}.stat{min-width:86px;padding:10px 13px;background:#062a3a8c;border:1px solid #ffffff20;border-radius:14px;backdrop-filter:blur(8px)}
+    .stat small{display:block;color:#aad8d1;font-size:10px;letter-spacing:.14em;margin-bottom:2px}.stat strong{font-size:20px;letter-spacing:.02em;font-variant-numeric:tabular-nums}.stat.right{text-align:right}
+    .center-mark{position:absolute;top:19%;left:0;right:0;text-align:center;pointer-events:none;transition:opacity .2s}.playing .center-mark{opacity:.55}.center-mark .eyebrow{font-size:10px;letter-spacing:.3em;color:#bce7de}.center-mark .title{font-family:Georgia,"Noto Serif TC",serif;font-weight:700;font-size:clamp(27px,8vw,39px);letter-spacing:.12em;margin:9px 0 0;text-shadow:0 2px 18px #082b3c80}
+    .wake{position:absolute;bottom:18%;left:50%;width:145px;height:160px;transform:translateX(-50%);background:linear-gradient(180deg,#ffffff00,#b6fff055,#ffffff00);filter:blur(12px);clip-path:polygon(46% 0,54% 0,100% 100%,0 100%);opacity:.75;pointer-events:none;transition:opacity .2s}.playing .wake{opacity:.28}
+    .overlay{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;padding:24px;background:#041c2c30;backdrop-filter:blur(2px);transition:opacity .25s,visibility .25s}
+    .overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+    .panel{width:min(100%,380px);border:1px solid #ffffff38;border-radius:26px;padding:26px 24px 22px;background:linear-gradient(145deg,#0a4053ed,#08283bed);box-shadow:0 24px 80px #03172380;text-align:center}
+    .seal{width:56px;height:56px;margin:0 auto 13px;border:1px solid #f8c76b99;border-radius:50%;display:grid;place-items:center;color:var(--gold);font-size:26px;box-shadow:inset 0 0 0 5px #f8c76b13}
+    .panel h1{font-family:Georgia,"Noto Serif TC",serif;font-size:28px;letter-spacing:.09em;margin:0 0 7px}.panel .sub{margin:0;color:#a8d5d1;font-size:12px;letter-spacing:.14em}
+    .rulebox{margin:21px 0 20px;padding:15px 16px;border-radius:16px;background:#ffffff0b;text-align:left}.rule{display:flex;gap:11px;align-items:flex-start;margin:9px 0;color:#e7f1e8;font-size:13px;line-height:1.5}.rule .icon{width:22px;flex:none;color:var(--gold);text-align:center}.rule b{color:#fff4d9}
+    .primary{width:100%;padding:15px;border-radius:15px;background:linear-gradient(135deg,#ffd984,#f4b94f);color:#173644;font-weight:900;letter-spacing:.12em;box-shadow:0 7px 22px #f7bd5740;font-size:16px}.primary:active{transform:scale(.98)}
+    .hint{margin:13px 0 0;font-size:11px;color:#98c6c4}.result-label{font-size:10px;letter-spacing:.24em;color:#9ce5d5;margin-bottom:8px}.result-title{font-family:Georgia,"Noto Serif TC",serif;font-size:29px;letter-spacing:.09em;margin:0 0 4px}.result-copy{color:#add3cd;font-size:12px;margin:0 0 18px}.score-card{display:flex;align-items:center;justify-content:center;gap:24px;margin:18px 0 21px;padding:17px 10px;border-radius:17px;background:#ffffff0c;border:1px solid #ffffff14}.score-card div{min-width:90px}.score-card small{display:block;font-size:10px;color:#9bcac5;letter-spacing:.12em}.score-card strong{font-size:27px;display:block;margin-top:3px;font-variant-numeric:tabular-nums}.score-card .unit{font-size:11px;color:#c8e0d8;font-weight:500}.bestline{font-size:11px;color:#b9ddd4;margin:-9px 0 18px}.actions{display:grid;gap:9px}.secondary{width:100%;padding:12px;border:1px solid #ffffff35;border-radius:14px;background:#ffffff0a;font-weight:700;font-size:13px}.secondary:active{background:#ffffff20}.footer-note{position:absolute;z-index:2;left:0;right:0;bottom:max(17px,env(safe-area-inset-bottom));text-align:center;font-size:10px;letter-spacing:.12em;color:#c5e6dcaa;pointer-events:none;transition:opacity .2s}.playing .footer-note{opacity:0}
+    .toast{position:absolute;z-index:6;left:50%;bottom:max(68px,calc(env(safe-area-inset-bottom) + 55px));transform:translate(-50%,12px);padding:10px 15px;border-radius:99px;background:#062738e8;border:1px solid #ffffff25;font-size:12px;white-space:nowrap;opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(min-width:600px){.app{max-width:430px;margin:auto;height:100dvh;border-left:1px solid #ffffff20;border-right:1px solid #ffffff20}.topline,.hud{left:24px;right:24px}}
+    @media(max-height:660px){.panel{padding:20px}.rulebox{margin:14px 0;padding:11px 14px}.rule{margin:6px 0}.seal{width:46px;height:46px;margin-bottom:9px}.panel h1{font-size:25px}}
+  </style>
+</head>
+<body>
+<main class="app" id="app">
+  <canvas id="sea" aria-label="航海遊戲畫面"></canvas><div class="grain"></div>
+  <div class="topline"><div class="brand">SPRING VOYAGE · 2026</div><button class="sound" id="soundBtn" aria-label="音效開關" title="音效開關">♫</button></div>
+  <div class="center-mark"><div class="eyebrow">春酒限定航線</div><div class="title">向海而行</div></div>
+  <div class="wake"></div>
+  <div class="hud"><div class="stat"><small>航行時間</small><strong id="timeHud">00:00</strong></div><div class="stat right"><small>航行距離</small><strong><span id="distanceHud">0</span><span style="font-size:11px;color:#b4dcd3"> m</span></strong></div></div>
+  <div class="footer-note">單指左右滑動 · 掌舵避開暗礁</div>
+  <section class="overlay" id="intro" aria-label="遊戲說明"><div class="panel">
+    <div class="seal">✦</div><h1>春酒遠航</h1><p class="sub">避開暗礁 · 寫下你的航海紀錄</p>
+    <div class="rulebox">
+      <div class="rule"><span class="icon">⌁</span><span><b>單指左右滑動</b>，控制船隻方向。</span></div>
+      <div class="rule"><span class="icon">◈</span><span>避開礁石與漂流物，<b>碰撞即結束</b>。</span></div>
+      <div class="rule"><span class="icon">⏱</span><span>航行越久、距離越遠，紀錄越好；速度會逐漸加快。</span></div>
+      <div class="rule"><span class="icon">▧</span><span>結束後可將成績存成航海紀錄圖片。</span></div>
+    </div>
+    <button class="primary" id="startBtn">啟航</button><p class="hint">建議直向握持手機遊玩</p>
+  </div></section>
+  <section class="overlay hidden" id="result" aria-label="航行結果"><div class="panel">
+    <div class="result-label" id="resultLabel">VOYAGE COMPLETE</div><h2 class="result-title" id="resultTitle">航程結束</h2><p class="result-copy" id="resultCopy">你的航海紀錄</p>
+    <div class="score-card"><div><small>航行時間</small><strong id="finalTime">00:00</strong></div><div><small>航行距離</small><strong><span id="finalDistance">0</span><span class="unit"> m</span></strong></div></div>
+    <p class="bestline" id="bestLine"></p><div class="actions"><button class="primary" id="saveBtn">保存航海紀錄圖片</button><button class="secondary" id="againBtn">再航行一次</button></div>
+  </div></section>
+  <div class="toast" id="toast">航海紀錄圖片已準備好</div>
+</main>
+<script>
+(()=>{
+  const app=document.getElementById('app'),canvas=document.getElementById('sea'),ctx=canvas.getContext('2d');
+  const intro=document.getElementById('intro'),result=document.getElementById('result');
+  const $=id=>document.getElementById(id);let W=0,H=0,dpr=1,state='intro',last=0,elapsed=0,distance=0,spawnAt=0,obstacles=[],particles=[],targetX=0,shipX=0,shipY=0,seaOffset=0,soundOn=false,audioCtx=null,best=Number(localStorage.getItem('springVoyageBest')||0);
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+  function resize(){const r=app.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);shipX=clamp(shipX||W/2,34,W-34);targetX=shipX;shipY=H*.74;draw()}
+  function roundedRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
+  function drawWater(){let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0b3447');g.addColorStop(.55,'#0a5668');g.addColorStop(1,'#0a7180');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // soft underwater light
+    const ray=ctx.createLinearGradient(W*.5,0,W*.5,H);ray.addColorStop(0,'#b0f3df00');ray.addColorStop(.48,'#b0f3df13');ray.addColorStop(1,'#b0f3df00');ctx.fillStyle=ray;ctx.beginPath();ctx.moveTo(W*.37,0);ctx.lineTo(W*.55,0);ctx.lineTo(W*.92,H);ctx.lineTo(W*.04,H);ctx.fill();
+    ctx.save();ctx.globalAlpha=.22;for(let row=0;row<13;row++){let y=((row*83+seaOffset)% (H+90))-45;ctx.beginPath();for(let x=-20;x<=W+20;x+=5){const yy=y+Math.sin((x+row*24)*.026+seaOffset*.012)*3;if(x===-20)ctx.moveTo(x,yy);else ctx.lineTo(x,yy)}ctx.strokeStyle=row%3===0?'#d0fff0':'#4bd1c2';ctx.lineWidth=row%3===0?1.7:1;ctx.stroke()}ctx.restore();
+    // distant islands at start
+    ctx.fillStyle='#092f3d';ctx.beginPath();ctx.moveTo(0,H*.33);ctx.quadraticCurveTo(W*.12,H*.25,W*.25,H*.33);ctx.quadraticCurveTo(W*.34,H*.26,W*.47,H*.35);ctx.lineTo(W*.47,H*.4);ctx.lineTo(0,H*.4);ctx.fill();ctx.beginPath();ctx.moveTo(W*.67,H*.34);ctx.quadraticCurveTo(W*.77,H*.26,W*.91,H*.34);ctx.lineTo(W,H*.37);ctx.lineTo(W,H*.41);ctx.lineTo(W*.68,H*.4);ctx.fill();
+  }
+  function drawRock(o){ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rot);const r=o.r;ctx.shadowColor='#041b26aa';ctx.shadowBlur=12;ctx.shadowOffsetY=5;ctx.fillStyle='#354b4d';ctx.strokeStyle='#a6b59a';ctx.lineWidth=2;ctx.beginPath();const pts=7;for(let i=0;i<pts;i++){const a=-Math.PI/2+i*Math.PI*2/pts,rr=r*(.79+Math.sin(i*12+o.seed)*.15);const x=Math.cos(a)*rr,y=Math.sin(a)*rr*.7;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.closePath();ctx.fill();ctx.stroke();ctx.shadowColor='transparent';ctx.fillStyle='#d1c393';ctx.globalAlpha=.55;ctx.beginPath();ctx.ellipse(-r*.13,-r*.18,r*.35,r*.12,-.4,0,Math.PI*2);ctx.fill();ctx.restore()}
+  function drawBuoy(o){ctx.save();ctx.translate(o.x,o.y);ctx.rotate(Math.sin(o.y*.02)*.08);ctx.shadowColor='#05212b99';ctx.shadowBlur=10;ctx.shadowOffsetY=5;ctx.fillStyle='#ff806b';ctx.strokeStyle='#ffe0a9';ctx.lineWidth=2;roundedRect(ctx,-o.r*.55,-o.r*.72,o.r*1.1,o.r*1.44,o.r*.35);ctx.fill();ctx.stroke();ctx.shadowColor='transparent';ctx.fillStyle='#fff1d3';ctx.fillRect(-o.r*.5,-o.r*.12,o.r,o.r*.22);ctx.restore()}
+  function drawShip(){const x=shipX,y=shipY;ctx.save();ctx.translate(x,y);ctx.shadowColor='#041722aa';ctx.shadowBlur=15;ctx.shadowOffsetY=10;ctx.fillStyle='#f5c86e';ctx.strokeStyle='#fff3cf';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-30);ctx.quadraticCurveTo(22,-3,16,21);ctx.quadraticCurveTo(0,34,-16,21);ctx.quadraticCurveTo(-22,-3,0,-30);ctx.closePath();ctx.fill();ctx.stroke();ctx.shadowColor='transparent';ctx.fillStyle='#124556';ctx.beginPath();ctx.moveTo(-1,-20);ctx.lineTo(2,9);ctx.lineTo(12,18);ctx.lineTo(10,-7);ctx.closePath();ctx.fill();ctx.fillStyle='#ffe9ae';ctx.beginPath();ctx.moveTo(-3,-16);ctx.lineTo(-12,10);ctx.lineTo(-2,7);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.globalAlpha=.7;ctx.beginPath();ctx.ellipse(0,33,8,17,0,0,Math.PI*2);ctx.fill();ctx.restore()}
+  function draw(){if(!W||!H)return;drawWater();for(const p of particles){ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;for(const o of obstacles)o.kind==='buoy'?drawBuoy(o):drawRock(o);drawShip()}
+  function beep(freq=400,duration=.08){if(!soundOn)return;try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sine';osc.frequency.value=freq;gain.gain.setValueAtTime(.06,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);osc.connect(gain);gain.connect(audioCtx.destination);osc.start();osc.stop(audioCtx.currentTime+duration)}catch(e){}}
+  function start(){elapsed=0;distance=0;obstacles=[];particles=[];spawnAt=0;shipX=W/2;targetX=shipX;shipY=H*.74;state='playing';intro.classList.add('hidden');result.classList.add('hidden');app.classList.add('playing');last=performance.now();requestAnimationFrame(loop);beep(660,.14)}
+  function finish(){state='result';app.classList.remove('playing');const t=Math.floor(elapsed),d=Math.floor(distance);$('finalTime').textContent=formatTime(t);$('finalDistance').textContent=d;$('resultLabel').textContent=elapsed>=60?'VOYAGE COMPLETE':'VOYAGE ENDED';$('resultTitle').textContent=elapsed>=60?'成功抵達！':'航程結束';$('resultCopy').textContent=elapsed>=60?'順利完成春酒限定航線':'暗礁擋住了去路，再試一次吧';if(d>best){best=d;localStorage.setItem('springVoyageBest',String(best))}$('bestLine').textContent=`個人最佳航程　${best} m`;result.classList.remove('hidden');beep(220,.25);draw()}
+  function formatTime(s){const sec=Math.max(0,Math.floor(s));return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`}
+  function burst(x,y){for(let i=0;i<16;i++)particles.push({x,y,vx:(Math.random()-.5)*210,vy:(Math.random()-.5)*230,r:2+Math.random()*4,life:1,color:i%2?'#ffd47c':'#fff2d2'})}
+  function spawn(){const margin=43,r=18+Math.random()*18;const x=margin+Math.random()*(W-margin*2);obstacles.push({x,y:-45,r,kind:Math.random()<.27?'buoy':'rock',seed:Math.random()*99,rot:Math.random()*6,spin:(Math.random()-.5)*.8});if(elapsed>22&&Math.random()<.28){const x2=margin+Math.random()*(W-margin*2);if(Math.abs(x2-x)>W*.31)obstacles.push({x:x2,y:-110,r:r*.82,kind:'rock',seed:Math.random()*99,rot:Math.random()*6,spin:.2})}}
+  function loop(now){if(state!=='playing')return;const dt=Math.min((now-last)/1000,.04);last=now;elapsed+=dt;const speed=178+Math.min(elapsed*3.25,155);distance+=dt*(2.6+elapsed*.018);seaOffset+=dt*speed*.58;shipX+=(targetX-shipX)*Math.min(1,dt*8);spawnAt-=dt;if(spawnAt<=0){spawn();spawnAt=Math.max(.55,1.12-elapsed*.009)+(Math.random()*.3)}
+    for(let i=obstacles.length-1;i>=0;i--){const o=obstacles[i];o.y+=speed*dt;o.rot+=o.spin*dt;if(o.y>H+70)obstacles.splice(i,1);else{const dx=o.x-shipX,dy=o.y-shipY;if(dx*dx+dy*dy<(o.r*.72+16)**2){burst(shipX,shipY);finish();return}}}
+    for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt*1.7;if(p.life<=0)particles.splice(i,1)}
+    $('timeHud').textContent=formatTime(elapsed);$('distanceHud').textContent=Math.floor(distance);draw();if(elapsed>=60){finish();return}requestAnimationFrame(loop)}
+  function pointer(e){const r=canvas.getBoundingClientRect();targetX=clamp(e.clientX-r.left,34,W-34)}
+  canvas.addEventListener('pointerdown',e=>{if(state==='playing'){canvas.setPointerCapture?.(e.pointerId);pointer(e)}});canvas.addEventListener('pointermove',e=>{if(state==='playing'&&(e.buttons||e.pointerType==='touch'))pointer(e)});
+  function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+  async function saveRecord(){const w=1080,h=1350,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');const grad=g.createLinearGradient(0,0,w,h);grad.addColorStop(0,'#0b4054');grad.addColorStop(.55,'#0a7180');grad.addColorStop(1,'#092c40');g.fillStyle=grad;g.fillRect(0,0,w,h);
+    // decorative wave lines
+    for(let i=0;i<13;i++){g.beginPath();for(let x=0;x<=w;x+=8){const y=190+i*86+Math.sin(x*.012+i)*8;if(x===0)g.moveTo(x,y);else g.lineTo(x,y)}g.strokeStyle=i%3===0?'#b7f1df33':'#b7f1df18';g.lineWidth=i%3===0?3:2;g.stroke()}
+    g.fillStyle='#f8c76b';g.beginPath();g.arc(w/2,195,37,0,Math.PI*2);g.strokeStyle='#f8c76b99';g.lineWidth=2;g.stroke();g.font='bold 30px system-ui';g.textAlign='center';g.fillText('✦',w/2,206);
+    g.fillStyle='#bfeae0';g.font='700 23px system-ui';g.letterSpacing='7px';g.fillText('SPRING VOYAGE · 2026',w/2,295);g.fillStyle='#fff4d9';g.font='bold 66px Georgia,serif';g.fillText(elapsed>=60?'成功抵達！':'我的航海紀錄',w/2,405);g.fillStyle='#aad8d1';g.font='26px system-ui';g.fillText('春酒限定航線　／　向海而行',w/2,463);
+    // ship illustration
+    g.save();g.translate(w/2,645);g.fillStyle='#f5c86e';g.strokeStyle='#fff3cf';g.lineWidth=4;g.beginPath();g.moveTo(0,-104);g.quadraticCurveTo(69,-9,52,72);g.quadraticCurveTo(0,116,-52,72);g.quadraticCurveTo(-69,-9,0,-104);g.closePath();g.fill();g.stroke();g.fillStyle='#124556';g.beginPath();g.moveTo(-3,-73);g.lineTo(5,31);g.lineTo(38,62);g.lineTo(30,-28);g.closePath();g.fill();g.restore();
+    const cardX=100,cardY=825,cardW=880,cardH=275;g.fillStyle='#062a3b99';g.strokeStyle='#ffffff35';g.lineWidth=2;roundedRect(g,cardX,cardY,cardW,cardH,30);g.fill();g.stroke();g.textAlign='center';g.fillStyle='#9ce5d5';g.font='22px system-ui';g.fillText('航行時間',w*.31,895);g.fillText('航行距離',w*.69,895);g.fillStyle='#fff4d9';g.font='bold 68px system-ui';g.fillText(formatTime(elapsed),w*.31,1000);g.fillText(`${Math.floor(distance)} m`,w*.69,1000);g.strokeStyle='#ffffff35';g.beginPath();g.moveTo(w/2,865);g.lineTo(w/2,1040);g.stroke();g.fillStyle='#b9ddd4';g.font='22px system-ui';g.fillText(`個人最佳航程　${best} m`,w/2,1060);g.fillStyle='#c5e6dc';g.font='20px system-ui';g.fillText(new Intl.DateTimeFormat('zh-TW',{dateStyle:'medium'}).format(new Date()),w/2,1195);g.fillStyle='#f8c76b';g.font='22px system-ui';g.fillText('願每一次出發，都有好風相伴。',w/2,1250);
+    const blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));if(!blob){toast('圖片製作失敗，請使用手機截圖');return}const file=new File([blob],'春酒遠航-航海紀錄.png',{type:'image/png'});try{if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'春酒遠航紀錄',text:`我航行了 ${Math.floor(distance)} 公尺！`});return}}catch(e){if(e.name==='AbortError')return}
+    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='春酒遠航-航海紀錄.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);toast('航海紀錄圖片已下載')}
+  $('startBtn').addEventListener('click',start);$('againBtn').addEventListener('click',start);$('saveBtn').addEventListener('click',saveRecord);$('soundBtn').addEventListener('click',()=>{soundOn=!soundOn;$('soundBtn').textContent=soundOn?'♪':'♫';if(soundOn)beep(520,.1)});
+  addEventListener('resize',resize);resize();
+})();
+</script>
+</body>
+</html>
